@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Blockchain Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="main-content">
+
+        <section class="pipeline-section" id="step1">
+            <div class="section-header"><h2>Panel 1 — Hash the Asset</h2></div>
+
+            <div class="card">
+                <div class="input-group">
+                    <label for="assetName">Asset Name</label>
+                    <input type="text" id="assetName" />
+                    <div class="input-status" id="assetNameStatus"></div>
+                </div>
+                <div class="input-group">
+                    <label for="assetContent">Asset Content</label>
+                    <textarea id="assetContent" rows="4"></textarea>
+                    <div class="input-status" id="assetContentStatus"></div>
+                </div>
+                <button id="btnHash" class="btn btn-primary">Generate SHA-256 Hash</button>
+            </div>
+
+            <div class="result-box hidden" id="hashResult">
+                <div class="result-label">Hash Generated</div>
+                <div class="hash-display" id="hashDisplay"></div>
+                <div class="result-meta" id="hashMeta"></div>
+            </div>
+        </section>
+
+        <section class="pipeline-section" id="step2">
+            <div class="section-header"><h2>Panel 2 — Connect MetaMask</h2></div>
+
+            <div class="card" id="walletCard">
+                <div class="info-box">
+                    <p><strong>Owner Address</strong></p>
+                    <p id="mintWalletAddr" class="highlight">—</p>
+                    <p id="walletStatus" class="highlight">Status: Not connected</p>
+                    <button id="btnConnectWallet" class="btn btn-secondary btn-large">Connect MetaMask</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="pipeline-section" id="step3">
+            <div class="section-header"><h2>Panel 3 — Mint the NFT</h2></div>
+
+            <div class="card">
+                <div class="info-box">
+                    <p>Asset Name: <span id="mintAssetName" class="highlight">—</span></p>
+                    <p>Asset Hash: <span id="mintAssetHash" class="highlight">—</span></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <button id="btnMint" class="btn btn-primary btn-large" disabled>Mint NFT</button>
+            </div>
+
+            <div class="result-box hidden" id="mintResult">
+                <div class="result-label">NFT Minted</div>
+                <div class="nft-card-preview" id="nftCardPreview"></div>
+                <div class="mint-details" id="mintDetails"></div>
+            </div>
+        </section>
+
+        <section class="pipeline-section" id="step4">
+            <div class="section-header"><h2>Stored on Blockchain</h2></div>
+
+            <div class="card">
+                <div class="info-box">
+                    <p><strong>On-Chain Record</strong></p>
+                    <div id="blockchainRecord"></div>
+                </div>
+            </div>
+
+            <div class="result-box hidden" id="storageResult">
+                <div class="result-label">Transaction Confirmed</div>
+                <div class="block-visual" id="blockVisual"></div>
+            </div>
+        </section>
+
+        <section class="pipeline-section" id="step5">
+            <div class="section-header"><h2>Verify Ownership</h2></div>
+
+            <div class="card">
+                <div class="input-group">
+                    <label for="verifyTokenId">Token ID to Verify</label>
+                    <input type="number" id="verifyTokenId" min="1" />
+                </div>
+                <div class="input-group">
+                    <label for="verifyHash">Original Content</label>
+                    <textarea id="verifyHash" rows="3"></textarea>
+                </div>
+                <button id="btnVerify" class="btn btn-primary">Verify Ownership</button>
+            </div>
+
+            <div class="result-box hidden" id="verifyResult">
+                <div class="result-label" id="verifyLabel">Verification Result</div>
+                <div id="verifyOutput"></div>
+            </div>
+        </section>
+
+        <section class="pipeline-section" id="step6">
+            <div class="section-header"><h2>Ownership Ledger</h2></div>
+
+            <div class="card">
+                <div class="ledger-header">
+                    <h3>Ledger</h3>
+                    <span class="ledger-count" id="ledgerCount">0 entries</span>
+                </div>
+                <div class="ledger-table-wrapper">
+                    <table class="ledger-table" id="ledgerTable">
+                        <thead>
+                            <tr>
+                                <th>Token ID</th>
+                                <th>Asset Name</th>
+                                <th>Content Hash</th>
+                                <th>Minted At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerBody">
+                            <tr class="empty-row"><td colspan="4">No assets minted yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <div class="overlay hidden" id="loadingOverlay">
+        <div class="loader">
+            <div class="spinner"></div>
+            <p id="loadingText">Processing...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
