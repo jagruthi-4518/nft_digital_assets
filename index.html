@@ -8,10 +8,25 @@
 </head>
 <body>
 
+    <header class="page-header">
+        <div class="page-title">
+            <h1>NFT Blockchain Demo</h1>
+        </div>
+        <div id="walletCard" class="wallet-card">
+            <button id="btnConnectWallet" class="btn btn-secondary wallet-btn">Connect MetaMask</button>
+            <div class="wallet-meta">
+                <p class="wallet-label">Owner ID</p>
+                <p id="mintWalletAddr" class="wallet-value">—</p>
+                <p class="wallet-label">Connected Network</p>
+                <p id="walletStatus" class="wallet-value">Not connected</p>
+            </div>
+        </div>
+    </header>
+
     <main class="main-content">
 
         <section class="pipeline-section" id="step1">
-            <div class="section-header"><h2>Panel 1 — Hash the Asset</h2></div>
+            <div class="section-header"><h2>Hash the Asset</h2></div>
 
             <div class="card">
                 <div class="input-group">
@@ -34,21 +49,8 @@
             </div>
         </section>
 
-        <section class="pipeline-section" id="step2">
-            <div class="section-header"><h2>Panel 2 — Connect MetaMask</h2></div>
-
-            <div class="card" id="walletCard">
-                <div class="info-box">
-                    <p><strong>Owner Address</strong></p>
-                    <p id="mintWalletAddr" class="highlight">—</p>
-                    <p id="walletStatus" class="highlight">Status: Not connected</p>
-                    <button id="btnConnectWallet" class="btn btn-secondary btn-large">Connect MetaMask</button>
-                </div>
-            </div>
-        </section>
-
         <section class="pipeline-section" id="step3">
-            <div class="section-header"><h2>Panel 3 — Mint the NFT</h2></div>
+            <div class="section-header"><h2>Mint the NFT</h2></div>
 
             <div class="card">
                 <div class="info-box">

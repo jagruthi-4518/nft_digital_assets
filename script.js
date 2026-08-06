@@ -165,16 +165,17 @@ function updateMintReadiness() {
     el.btnMint.disabled = !(state.hash && state.walletAddress);
     el.mintAssetName.textContent = state.assetName || '—';
     el.mintAssetHash.textContent = state.hash ? truncate(state.hash) : '—';
-    if (el.walletCard) {
-        el.walletCard.classList.remove('hidden');
+    if (el.btnConnectWallet) {
+        el.btnConnectWallet.textContent = state.walletAddress ? 'Connected' : 'Connect MetaMask';
+        el.btnConnectWallet.classList.toggle('connected', Boolean(state.walletAddress));
     }
     if (el.mintWalletAddr) {
         el.mintWalletAddr.textContent = state.walletAddress ? state.walletAddress : '—';
     }
     if (el.walletStatus) {
         el.walletStatus.textContent = state.walletAddress
-            ? `Status: Connected to ${state.walletNetwork || 'Sepolia'}`
-            : 'Status: Not connected';
+            ? `${state.walletNetwork || 'Sepolia'}`
+            : 'Not connected';
     }
 }
 
