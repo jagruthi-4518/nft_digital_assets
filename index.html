@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Blockchain Demo</title>
+    <title>Decentralized Asset Tokenization & Ownership Verification</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header class="page-header">
         <div class="page-title">
-            <h1>NFT Blockchain Demo</h1>
+            <h1>Decentralized Asset Tokenization & Ownership Verification</h1>
         </div>
         <div id="walletCard" class="wallet-card">
             <button id="btnConnectWallet" class="btn btn-secondary wallet-btn">Connect MetaMask</button>
@@ -65,8 +65,22 @@
 
             <div class="result-box hidden" id="mintResult">
                 <div class="result-label">NFT Minted</div>
-                <div class="nft-card-preview" id="nftCardPreview"></div>
-                <div class="mint-details" id="mintDetails"></div>
+                <div class="nft-card-preview" id="nftCardPreview">
+                    <div class="nft-field">
+                        <div class="nft-field-label">Token ID</div>
+                        <div class="nft-field-value" id="mintTokenId">—</div>
+                    </div>
+                    <div class="nft-field">
+                        <div class="nft-field-label">Asset Name</div>
+                        <div class="nft-field-value" id="mintAssetNamePreview">—</div>
+                    </div>
+                </div>
+                <div class="mint-details" id="mintDetails">
+                    <div class="mint-detail-row">
+                        <span class="label">Tx Hash</span>
+                        <span class="value" id="mintTxHash">—</span>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -76,13 +90,23 @@
             <div class="card">
                 <div class="info-box">
                     <p><strong>On-Chain Record</strong></p>
-                    <div id="blockchainRecord"></div>
+                    <div id="blockchainRecord">
+                        <p>Token ID: <span class="highlight" id="recordTokenId">—</span></p>
+                        <p>Content Hash: <span class="highlight" id="recordContentHash">—</span></p>
+                        <p>Owner Address: <span class="highlight" id="recordOwner">—</span></p>
+                        <p>Timestamp: <span class="highlight" id="recordTimestamp">—</span></p>
+                    </div>
                 </div>
             </div>
 
             <div class="result-box hidden" id="storageResult">
                 <div class="result-label">Transaction Confirmed</div>
-                <div class="block-visual" id="blockVisual"></div>
+                <div class="block-visual" id="blockVisual">
+                    <div class="block-item">
+                        <span class="block-key">Tx Hash</span>
+                        <span class="block-value" id="recordTxHash">—</span>
+                    </div>
+                </div>
             </div>
         </section>
 

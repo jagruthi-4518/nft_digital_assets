@@ -51,7 +51,10 @@ const el = {
     btnConnectWallet: $('btnConnectWallet'),
     btnMint: $('btnMint'),
     mintAssetName: $('mintAssetName'),
+    mintAssetNamePreview: $('mintAssetNamePreview'),
     mintAssetHash: $('mintAssetHash'),
+    mintTokenId: $('mintTokenId'),
+    mintTxHash: $('mintTxHash'),
     mintWalletAddr: $('mintWalletAddr'),
     walletStatus: $('walletStatus'),
     walletCard: $('walletCard'),
@@ -60,8 +63,13 @@ const el = {
     mintDetails: $('mintDetails'),
 
     blockchainRecord: $('blockchainRecord'),
+    recordTokenId: $('recordTokenId'),
+    recordContentHash: $('recordContentHash'),
+    recordOwner: $('recordOwner'),
+    recordTimestamp: $('recordTimestamp'),
     storageResult: $('storageResult'),
     blockVisual: $('blockVisual'),
+    recordTxHash: $('recordTxHash'),
 
     verifyTokenId: $('verifyTokenId'),
     verifyHash: $('verifyHash'),
@@ -76,6 +84,19 @@ const el = {
 
 function showResult(box) {
     box.classList.remove('hidden');
+}
+
+function clearElement(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
+function createElement(tag, { className, text } = {}) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
 }
 
 function truncate(addr) {
@@ -261,7 +282,7 @@ async function handleHash() {
     state.assetName = name;
 
     el.hashDisplay.textContent = hash;
-    el.hashMeta.innerHTML = '';
+    el.hashMeta.textContent = '';
 
     showResult(el.hashResult);
     updateMintReadiness();
@@ -284,7 +305,6 @@ async function handleMint() {
     }
 
     try {
-        // Disable button while transaction is happening
         el.btnMint.disabled = true;
         el.btnMint.textContent = 'Waiting for MetaMask...';
         showLoading('Minting NFT...');
@@ -294,7 +314,6 @@ async function handleMint() {
             contentHash: state.hash
         });
 
-        // 🚀 ACTUAL SMART CONTRACT CALL
         const tx = await contract.mintNFT(
             state.assetName,
             state.hash
@@ -304,12 +323,11 @@ async function handleMint() {
 
         el.btnMint.textContent = 'Minting...';
 
-        // Wait for Sepolia confirmation
         const receipt = await tx.wait();
 
         console.log('Transaction confirmed:', receipt);
 
-        // Find AssetMinted event
+
         let tokenId = null;
 
         for (const log of receipt.logs) {
@@ -324,7 +342,7 @@ async function handleMint() {
                     break;
                 }
             } catch (error) {
-                // Ignore logs belonging to other contracts/events
+                console.warn('Failed to parse log:', error);
             }
         }
 
@@ -332,7 +350,6 @@ async function handleMint() {
             throw new Error('Could not find Token ID in AssetMinted event.');
         }
 
-        // Get actual block information
         const block = await provider.getBlock(receipt.blockNumber);
 
         const record = {
@@ -347,33 +364,14 @@ async function handleMint() {
             blockNumber: receipt.blockNumber
         };
 
-        // Save record for frontend history
         state.ledger.push(record);
         saveLedger();
 
-        // Update next token ID
         state.nextTokenId = tokenId + 1;
 
-        // Update UI
-
-        el.nftCardPreview.innerHTML = `
-            <div class="nft-field">
-                <div class="nft-field-label">Token ID</div>
-                <div class="nft-field-value">#${record.tokenId}</div>
-            </div>
-
-            <div class="nft-field">
-                <div class="nft-field-label">Asset Name</div>
-                <div class="nft-field-value">${record.assetName}</div>
-            </div>
-        `;
-
-        el.mintDetails.innerHTML = `
-            <div>
-                <span class="label">Tx Hash</span>
-                <span class="value">${record.txHash}</span>
-            </div>
-        `;
+        el.mintTokenId.textContent = `#${record.tokenId}`;
+        el.mintAssetNamePreview.textContent = record.assetName;
+        el.mintTxHash.textContent = record.txHash;
 
         showResult(el.mintResult);
         renderBlockRecord(record);
@@ -418,16 +416,11 @@ async function handleMint() {
 }
 
 function renderBlockRecord(record) {
-    el.blockchainRecord.innerHTML = `
-        <p>Token ID: <span class="highlight">#${record.tokenId}</span></p>
-        <p>Content Hash: <span class="highlight">${record.contentHash.slice(0, 30)}...</span></p>
-        <p>Owner Address: <span class="highlight">${record.owner}</span></p>
-        <p>Timestamp: <span class="highlight">${formatTime(record.mintedAt)}</span></p>
-    `;
-
-    el.blockVisual.innerHTML = `
-        <div class="block-item"><span class="block-key">Tx Hash</span><span class="block-value">${record.txHash}</span></div>
-    `;
+    el.recordTokenId.textContent = `#${record.tokenId}`;
+    el.recordContentHash.textContent = `${record.contentHash.slice(0, 30)}...`;
+    el.recordOwner.textContent = record.owner;
+    el.recordTimestamp.textContent = formatTime(record.mintedAt);
+    el.recordTxHash.textContent = record.txHash;
 
     showResult(el.storageResult);
 }
@@ -440,7 +433,9 @@ async function handleVerify() {
 
     const record = state.ledger.find(r => r.tokenId === tokenId);
     if (!record) {
-        el.verifyOutput.innerHTML = `<div class="verify-fail">Token #${tokenId} not found in ledger.</div>`;
+        clearElement(el.verifyOutput);
+        const failMessage = createElement('div', { className: 'verify-fail', text: `Token #${tokenId} not found in ledger.` });
+        el.verifyOutput.appendChild(failMessage);
         showResult(el.verifyResult);
         return;
     }
@@ -448,9 +443,14 @@ async function handleVerify() {
     const newHash = await sha256(content);
 
     const match = newHash === record.contentHash;
-    el.verifyOutput.innerHTML = match
-        ? `<div class="verify-pass">Ownership verified. Hash matches Token #${tokenId}.</div>`
-        : `<div class="verify-fail">Hash mismatch. This content does not match Token #${tokenId}.</div>`;
+    clearElement(el.verifyOutput);
+    const verifyMessage = createElement('div', {
+        className: match ? 'verify-pass' : 'verify-fail',
+        text: match
+            ? `Ownership verified. Hash matches Token #${tokenId}.`
+            : `Hash mismatch. This content does not match Token #${tokenId}.`
+    });
+    el.verifyOutput.appendChild(verifyMessage);
 
     showResult(el.verifyResult);
 }
@@ -460,18 +460,25 @@ function renderLedger() {
     el.ledgerCount.textContent = `${ledgerEntries.length} entries`;
 
     if (ledgerEntries.length === 0) {
-        el.ledgerBody.innerHTML = `<tr class="empty-row"><td colspan="4">No assets minted yet.</td></tr>`;
+        clearElement(el.ledgerBody);
+        const emptyRow = createElement('tr', { className: 'empty-row' });
+        const emptyCell = createElement('td', { text: 'No assets minted yet.' });
+        emptyCell.colSpan = 4;
+        emptyRow.appendChild(emptyCell);
+        el.ledgerBody.appendChild(emptyRow);
         return;
     }
 
-    el.ledgerBody.innerHTML = ledgerEntries.map(r => `
-        <tr>
-            <td>#${r.tokenId || '—'}</td>
-            <td>${(r.assetName || 'Untitled').toString()}</td>
-            <td class="hash-cell">${(r.contentHash || '—').toString()}</td>
-            <td>${Number.isFinite(r.mintedAt) ? formatTime(r.mintedAt) : '—'}</td>
-        </tr>
-    `).join('');
+    clearElement(el.ledgerBody);
+    ledgerEntries.forEach((r) => {
+        const row = createElement('tr');
+        row.appendChild(createElement('td', { text: `#${r.tokenId || '—'}` }));
+        row.appendChild(createElement('td', { text: (r.assetName || 'Untitled').toString() }));
+        const hashCell = createElement('td', { className: 'hash-cell', text: (r.contentHash || '—').toString() });
+        row.appendChild(hashCell);
+        row.appendChild(createElement('td', { text: Number.isFinite(r.mintedAt) ? formatTime(r.mintedAt) : '—' }));
+        el.ledgerBody.appendChild(row);
+    });
 }
 
 el.assetName.addEventListener('input', updateDuplicateStatus);
