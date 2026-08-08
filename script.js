@@ -1,3 +1,6 @@
+
+
+
 function normalizeLedger(rawLedger) {
     if (!Array.isArray(rawLedger)) return [];
 
@@ -13,6 +16,11 @@ function normalizeLedger(rawLedger) {
             blockNumber: Number.isFinite(entry?.blockNumber) ? entry.blockNumber : null
         }));
 }
+
+let provider;
+let signer;
+let contract;
+
 
 const savedLedger = normalizeLedger(loadLedger());
 const state = {
@@ -70,14 +78,6 @@ function showResult(box) {
     box.classList.remove('hidden');
 }
 
-function setActiveStep(n) {
-    document.querySelectorAll('.pipeline-step').forEach((step, i) => {
-        step.classList.remove('active', 'completed');
-        if (i + 1 < n) step.classList.add('completed');
-        else if (i + 1 === n) step.classList.add('active');
-    });
-}
-
 function truncate(addr) {
     if (!addr) return '—';
     return addr.slice(0, 6) + '...' + addr.slice(-4);
@@ -98,19 +98,22 @@ function saveLedger() {
     localStorage.setItem('nftLedger', JSON.stringify(state.ledger));
 }
 
-function randomHex(len) {
-    const chars = '0123456789abcdef';
-    let out = '';
-    for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * 16)];
-    return out;
-}
-
 function formatTime(ts) {
     return new Date(ts * 1000).toLocaleString();
 }
 
-function delay(ms) {
-    return new Promise((r) => setTimeout(r, ms));
+function showLoading(message = 'Processing...') {
+    const overlay = $('loadingOverlay');
+    const loadingText = $('loadingText');
+    if (!overlay || !loadingText) return;
+    loadingText.textContent = message;
+    overlay.classList.remove('hidden');
+}
+
+function hideLoading() {
+    const overlay = $('loadingOverlay');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
 }
 
 async function sha256(text) {
@@ -219,12 +222,27 @@ async function connectWallet() {
 
         state.chainId = await window.ethereum.request({ method: 'eth_chainId' });
         state.walletNetwork = 'Sepolia';
+
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+
+        contract = new ethers.Contract(
+            CONTRACT_ADDRESS,
+            CONTRACT_ABI,
+            signer
+        );
+        console.log("Smart contract connected?:", contract);
+
         updateMintReadiness();
     } catch (error) {
         console.error(error);
         alert('Unable to connect to MetaMask on Sepolia.');
     }
 }
+
+
+
+
 
 async function handleHash() {
     const name = el.assetName.value.trim();
@@ -242,8 +260,6 @@ async function handleHash() {
     state.hash = hash;
     state.assetName = name;
 
-    setActiveStep(2);
-
     el.hashDisplay.textContent = hash;
     el.hashMeta.innerHTML = '';
 
@@ -256,40 +272,149 @@ async function handleMint() {
         alert('Please connect MetaMask first.');
         return;
     }
-    if (state.duplicateName || state.duplicateContent) {
-        alert('This asset name or content already exists in the ledger.');
+
+    if (!contract) {
+        alert('Smart contract is not connected.');
         return;
     }
 
-    const timestamp = Math.floor(Date.now() / 1000);
+    if (state.duplicateName || state.duplicateContent) {
+        alert('This asset name or content already exists.');
+        return;
+    }
 
-    const record = {
-        tokenId: state.nextTokenId++,
-        contentHash: state.hash,
-        assetName: state.assetName,
-        owner: state.walletAddress,
-        mintedAt: timestamp,
-        txHash: '0x' + randomHex(64),
-        blockNumber: Math.floor(Math.random() * 500000) + 18000000
-    };
+    try {
+        // Disable button while transaction is happening
+        el.btnMint.disabled = true;
+        el.btnMint.textContent = 'Waiting for MetaMask...';
+        showLoading('Minting NFT...');
 
-    state.ledger.push(record);
-    saveLedger();
+        console.log('Minting:', {
+            assetName: state.assetName,
+            contentHash: state.hash
+        });
 
-    setActiveStep(4);
+        // 🚀 ACTUAL SMART CONTRACT CALL
+        const tx = await contract.mintNFT(
+            state.assetName,
+            state.hash
+        );
 
-    el.nftCardPreview.innerHTML = `
-        <div class="nft-field"><div class="nft-field-label">Token ID</div><div class="nft-field-value">#${record.tokenId}</div></div>
-        <div class="nft-field"><div class="nft-field-label">Asset Name</div><div class="nft-field-value">${record.assetName}</div></div>
-    `;
+        console.log('Transaction submitted:', tx.hash);
 
-    el.mintDetails.innerHTML = `
-        <div><span class="label">Tx Hash</span><span class="value">${record.txHash}</span></div>
-    `;
+        el.btnMint.textContent = 'Minting...';
 
-    showResult(el.mintResult);
-    renderBlockRecord(record);
-    renderLedger();
+        // Wait for Sepolia confirmation
+        const receipt = await tx.wait();
+
+        console.log('Transaction confirmed:', receipt);
+
+        // Find AssetMinted event
+        let tokenId = null;
+
+        for (const log of receipt.logs) {
+            try {
+                const parsedLog = contract.interface.parseLog({
+                    topics: log.topics,
+                    data: log.data
+                });
+
+                if (parsedLog && parsedLog.name === 'AssetMinted') {
+                    tokenId = Number(parsedLog.args.tokenId);
+                    break;
+                }
+            } catch (error) {
+                // Ignore logs belonging to other contracts/events
+            }
+        }
+
+        if (tokenId === null) {
+            throw new Error('Could not find Token ID in AssetMinted event.');
+        }
+
+        // Get actual block information
+        const block = await provider.getBlock(receipt.blockNumber);
+
+        const record = {
+            tokenId: tokenId,
+            contentHash: state.hash,
+            assetName: state.assetName,
+            owner: state.walletAddress,
+            mintedAt: block
+                ? Number(block.timestamp)
+                : Math.floor(Date.now() / 1000),
+            txHash: receipt.hash,
+            blockNumber: receipt.blockNumber
+        };
+
+        // Save record for frontend history
+        state.ledger.push(record);
+        saveLedger();
+
+        // Update next token ID
+        state.nextTokenId = tokenId + 1;
+
+        // Update UI
+
+        el.nftCardPreview.innerHTML = `
+            <div class="nft-field">
+                <div class="nft-field-label">Token ID</div>
+                <div class="nft-field-value">#${record.tokenId}</div>
+            </div>
+
+            <div class="nft-field">
+                <div class="nft-field-label">Asset Name</div>
+                <div class="nft-field-value">${record.assetName}</div>
+            </div>
+        `;
+
+        el.mintDetails.innerHTML = `
+            <div>
+                <span class="label">Tx Hash</span>
+                <span class="value">${record.txHash}</span>
+            </div>
+        `;
+
+        showResult(el.mintResult);
+        renderBlockRecord(record);
+        renderLedger();
+
+        console.log('NFT minted successfully!');
+        console.log('Token ID:', record.tokenId);
+        console.log('Transaction:', record.txHash);
+        console.log('Block:', record.blockNumber);
+
+        alert(`NFT #${record.tokenId} minted successfully!`);
+
+    } catch (error) {
+
+        console.error('Minting error:', error);
+
+        // User rejected MetaMask transaction
+        if (error.code === 4001) {
+            alert('Transaction rejected in MetaMask.');
+        }
+
+        // Solidity require() failure
+        else if (error.reason) {
+            alert(`Mint failed: ${error.reason}`);
+        }
+
+        else if (error.shortMessage) {
+            alert(`Mint failed: ${error.shortMessage}`);
+        }
+
+        else {
+            alert('Mint failed. Check the browser console for details.');
+        }
+
+    } finally {
+        hideLoading();
+        el.btnMint.disabled = false;
+        el.btnMint.textContent = 'Mint NFT';
+
+        updateMintReadiness();
+    }
 }
 
 function renderBlockRecord(record) {
@@ -322,8 +447,6 @@ async function handleVerify() {
 
     const newHash = await sha256(content);
 
-    setActiveStep(5);
-
     const match = newHash === record.contentHash;
     el.verifyOutput.innerHTML = match
         ? `<div class="verify-pass">Ownership verified. Hash matches Token #${tokenId}.</div>`
@@ -349,8 +472,6 @@ function renderLedger() {
             <td>${Number.isFinite(r.mintedAt) ? formatTime(r.mintedAt) : '—'}</td>
         </tr>
     `).join('');
-
-    setActiveStep(6);
 }
 
 el.assetName.addEventListener('input', updateDuplicateStatus);

@@ -97,77 +97,7 @@ body {
     word-break: break-all;
 }
 
-/* Header */
-.header {
-    background: var(--primary-dark);
-    padding: 1.5rem;
-    text-align: center;
-}
-
-.header h1 {
-    font-size: 1.5rem;
-    color: #fff;
-}
-
-/* Pipeline nav */
-.pipeline-nav {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1.2rem 1rem;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.pipeline-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-    flex: 1;
-}
-
-.step-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--bg-card);
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.step-circle span {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-muted);
-}
-
-.pipeline-step.active .step-circle {
-    border-color: var(--primary);
-    background: var(--primary);
-}
-
-.pipeline-step.active .step-circle span,
-.pipeline-step.completed .step-circle span {
-    color: #fff;
-}
-
-.pipeline-step.completed .step-circle {
-    border-color: var(--success);
-    background: var(--success);
-}
-
-.step-label {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-}
-
-.pipeline-step.active .step-label {
-    color: var(--primary);
-    font-weight: 600;
-}
+/* Unused header and step-tracker styles removed. */
 
 /* Main content */
 .main-content {
@@ -195,15 +125,6 @@ body {
 .section-header h2 {
     position: relative;
     padding-left: 0;
-}
-
-.section-badge {
-    background: var(--primary);
-    color: #fff;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
 }
 
 .section-header h2 {
@@ -345,35 +266,6 @@ body {
     color: var(--text-muted);
 }
 
-.wallet-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.6rem;
-}
-
-.wallet-address {
-    font-family: 'Courier New', monospace;
-    font-size: 0.85rem;
-    color: var(--accent-light);
-    background: var(--bg-card);
-    padding: 0.3rem 0.7rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-}
-
-.wallet-details {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 0.4rem;
-}
-
-.wallet-details span {
-    display: flex;
-    justify-content: space-between;
-}
 
 .info-box {
     background: var(--bg-card);
@@ -428,19 +320,26 @@ body {
 }
 
 .mint-details div {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.4rem;
+    align-items: center;
     padding: 0.3rem 0;
     border-bottom: 1px solid var(--border);
 }
 
 .mint-details .label {
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
 .mint-details .value {
     font-family: 'Courier New', monospace;
     font-size: 0.75rem;
+    text-align: right;
+    min-width: 0;
+    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
 .block-visual {
@@ -564,25 +463,29 @@ body {
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(10, 10, 26, 0.9);
+    z-index: 9999;
+    background: rgba(10, 10, 26, 0.92);
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 1rem;
 }
 
 .loader {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.5rem 2rem;
+    width: min(360px, 100%);
+    background: rgba(12, 12, 24, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem 1.5rem 1.25rem;
     text-align: center;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
 }
 
 .spinner {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 0.8rem;
-    border: 5px solid var(--border);
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 1rem;
+    border: 5px solid rgba(255, 255, 255, 0.12);
     border-top-color: var(--primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
