@@ -194,12 +194,13 @@ body {
 }
 
 .btn-primary {
-    background: var(--primary);
+    background: linear-gradient(135deg, #7b5bff, #8758f0);
     color: #fff;
+    box-shadow: 0 18px 30px rgba(123, 91, 255, 0.18);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: var(--primary-dark);
+    background: linear-gradient(135deg, #8c71ff, #9567ff);
 }
 
 .btn-secondary {
@@ -222,9 +223,11 @@ body {
 
 .btn-large {
     width: 100%;
-    padding: 0.8rem;
+    padding: 1.15rem 1.2rem;
     font-size: 1rem;
     margin-top: 0.5rem;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
 }
 
 .input-group input:focus,
@@ -314,18 +317,54 @@ body {
 
 .mint-details {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 0.4rem;
+    gap: 0.5rem;
     font-size: 0.8rem;
 }
 
-.mint-details div {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 0.4rem;
+.mint-detail-row {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 0.3rem 0;
+    gap: 1rem;
+    padding: 0.65rem 0;
     border-bottom: 1px solid var(--border);
+}
+
+.mint-detail-row:last-child {
+    border-bottom: none;
+}
+
+.tx-actions {
+    justify-content: center;
+    padding-top: 0.35rem;
+}
+
+.etherscan-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    gap: 0.6rem;
+    padding: 1rem 1.2rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #7b5bff, #8758f0);
+    border: none;
+    box-shadow: 0 18px 30px rgba(123, 91, 255, 0.18);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.etherscan-btn:hover {
+    background: linear-gradient(135deg, #8c71ff, #9567ff);
+    transform: translateY(-1px);
+    box-shadow: 0 20px 36px rgba(123, 91, 255, 0.22);
+}
+
+.etherscan-btn.hidden {
+    display: none !important;
 }
 
 .mint-details .label {
@@ -493,4 +532,84 @@ body {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* File Dropzone Styles */
+.file-dropzone {
+    border: 2px dashed var(--accent);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(0, 206, 201, 0.08);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-dropzone:hover {
+    background: rgba(0, 206, 201, 0.15);
+    border-color: var(--accent-light);
+}
+
+.file-dropzone.drag-over {
+    background: rgba(0, 206, 201, 0.25);
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 3px rgba(0, 206, 201, 0.1);
+}
+
+.dropzone-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 0.8rem;
+    color: var(--accent);
+    opacity: 0.7;
+}
+
+.dropzone-text {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.dropzone-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.file-info {
+    margin-top: 0.8rem;
+    padding: 0.8rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--accent-light);
+}
+
+.file-info.empty {
+    display: none;
+}
+.ipfs-preview {
+    margin-top: 0.8rem;
+}
+.ipfs-text {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.8rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.85rem;
+}
+.ipfs-image-preview,
+.ipfs-video-preview {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 0.5rem;
+}
+.ipfs-file-link {
+    color: var(--accent-light);
+    text-decoration: underline;
+    font-size: 0.85rem;
 }

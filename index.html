@@ -35,10 +35,41 @@
                     <div class="input-status" id="assetNameStatus"></div>
                 </div>
                 <div class="input-group">
+                    <label for="assetType">Asset Type</label>
+                    <select id="assetType">
+                        <option value="">-- Select Asset Type --</option>
+                        <option value="text">Text</option>
+                        <option value="image">Image</option>
+                        <option value="doc">Document</option>
+                        <option value="video">Video</option>
+                    </select>
+                    <div class="input-status" id="assetTypeStatus"></div>
+                </div>
+
+                <!-- Text Input for Text Type -->
+                <div class="input-group hidden" id="textInputGroup">
                     <label for="assetContent">Asset Content</label>
-                    <textarea id="assetContent" rows="4"></textarea>
+                    <textarea id="assetContent" rows="4" placeholder="Enter your text content here..."></textarea>
                     <div class="input-status" id="assetContentStatus"></div>
                 </div>
+
+                <!-- File Drop Zone for Image, Doc, Video -->
+                <div class="input-group hidden" id="fileDropGroup">
+                    <label>Upload Asset File</label>
+                    <div class="file-dropzone" id="fileDropzone">
+                        <svg class="dropzone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p class="dropzone-text">Drag and drop your file here or click to browse</p>
+                        <p class="dropzone-hint" id="fileTypeHint"></p>
+                        <input type="file" id="fileInput" style="display: none;" />
+                    </div>
+                    <div class="file-info" id="fileInfo"></div>
+                    <div class="input-status" id="assetFileStatus"></div>
+                </div>
+
                 <button id="btnHash" class="btn btn-primary">Generate SHA-256 Hash</button>
             </div>
 
@@ -80,6 +111,30 @@
                         <span class="label">Tx Hash</span>
                         <span class="value" id="mintTxHash">—</span>
                     </div>
+                    <div class="mint-detail-row">
+                        <span class="label">Block ID</span>
+                        <span class="value" id="mintBlockId">—</span>
+                    </div>
+                    <div class="mint-detail-row">
+                        <span class="label">IPFS CID</span>
+                        <span class="value" id="mintCid">—</span>
+                    </div>
+                    <div class="mint-detail-row tx-actions">
+                        <a id="ipfsLink" class="etherscan-btn hidden" href="#" target="_blank" rel="noopener noreferrer">
+                            View on IPFS
+                        </a>
+                    </div>
+                    <div class="mint-detail-row tx-actions">
+                        <a
+                            id="etherscanLink"
+                            class="etherscan-btn hidden"
+                            href="#"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            View on Etherscan
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -92,6 +147,8 @@
                     <p><strong>On-Chain Record</strong></p>
                     <div id="blockchainRecord">
                         <p>Token ID: <span class="highlight" id="recordTokenId">—</span></p>
+                        <p>Asset Name: <span class="highlight" id="recordAssetName">—</span></p>   
+                        <p>Asset Type: <span class="highlight" id="recordAssetType">—</span></p>   
                         <p>Content Hash: <span class="highlight" id="recordContentHash">—</span></p>
                         <p>Owner Address: <span class="highlight" id="recordOwner">—</span></p>
                         <p>Timestamp: <span class="highlight" id="recordTimestamp">—</span></p>
@@ -119,9 +176,41 @@
                     <input type="number" id="verifyTokenId" min="1" />
                 </div>
                 <div class="input-group">
-                    <label for="verifyHash">Original Content</label>
-                    <textarea id="verifyHash" rows="3"></textarea>
+                    <label for="verifyAssetType">Asset Type</label>
+                    <select id="verifyAssetType">
+                        <option value="">-- Select Asset Type --</option>
+                        <option value="text">Text</option>
+                        <option value="image">Image</option>
+                        <option value="doc">Document</option>
+                        <option value="video">Video</option>
+                    </select>
+                    <div class="input-status" id="verifyAssetTypeStatus"></div>
                 </div>
+
+                <!-- Text Input for Text Type -->
+                <div class="input-group hidden" id="verifyTextInputGroup">
+                    <label for="verifyContent">Original Content</label>
+                    <textarea id="verifyContent" rows="3" placeholder="Enter the original text content..."></textarea>
+                    <div class="input-status" id="verifyContentStatus"></div>
+                </div>
+
+                <!-- File Drop Zone for Image, Doc, Video -->
+                <div class="input-group hidden" id="verifyFileDropGroup">
+                    <label>Upload Asset File</label>
+                    <div class="file-dropzone" id="verifyFileDropzone">
+                        <svg class="dropzone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p class="dropzone-text">Drag and drop your file here or click to browse</p>
+                        <p class="dropzone-hint" id="verifyFileTypeHint"></p>
+                        <input type="file" id="verifyFileInput" style="display: none;" />
+                    </div>
+                    <div class="file-info" id="verifyFileInfo"></div>
+                    <div class="input-status" id="verifyFileStatus"></div>
+                </div>
+
                 <button id="btnVerify" class="btn btn-primary">Verify Ownership</button>
             </div>
 
@@ -145,16 +234,20 @@
                             <tr>
                                 <th>Token ID</th>
                                 <th>Asset Name</th>
+                                <th>Asset Type</th>
+                                <th>IPFS</th>
                                 <th>Content Hash</th>
                                 <th>Minted At</th>
                             </tr>
                         </thead>
                         <tbody id="ledgerBody">
-                            <tr class="empty-row"><td colspan="4">No assets minted yet.</td></tr>
+                            <tr class="empty-row"><td colspan="6">No assets minted yet.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+    
 
         </section>
 
