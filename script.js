@@ -111,7 +111,9 @@ const el = {
     ledgerBody: $('ledgerBody'),
 
     mintCid: $('mintCid'),
-    ipfsLink: $('ipfsLink')
+    ipfsLink: $('ipfsLink'),
+
+    recordMetadataURI: $('recordMetadataURI')
 };
 
 function showResult(box) {
@@ -589,7 +591,7 @@ async function handleMint() {
                 : Math.floor(Date.now() / 1000),
             txHash: receipt.hash,
             blockNumber: receipt.blockNumber,
-            tokenURI: tokenURI,
+            tokenURI: parsedLog.args.metadataURI || tokenURI,
             cid: metaCid,
         };
 
@@ -737,6 +739,7 @@ function renderBlockRecord(record) {
     el.recordAssetName.textContent = record.assetName;
     el.recordAssetType.textContent = record.assetType;
     el.recordContentHash.textContent = `${record.contentHash.slice(0, 30)}...`;
+    el.recordMetadataURI.textContent = record.tokenURI;
     el.recordOwner.textContent = record.owner;
     el.recordTimestamp.textContent = formatTime(record.mintedAt);
     el.recordTxHash.textContent = record.txHash;
@@ -808,7 +811,8 @@ function renderLedger() {
     if (r.tokenURI) {
     const viewBtn = createElement('a', {
         className: 'btn-link',
-        text: 'View JSON on IPFS'
+        text: 'IPFS URI',
+        
     });
 
     viewBtn.href = ipfsToHttp(r.tokenURI);

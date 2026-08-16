@@ -85,7 +85,7 @@ def upload_file():
                     "contentHash": contentHash,
                     "fileName": file.filename,
                     "mimeType": file.mimetype,
-                    "assetfile": file_uri
+                    "asset_uri": file_uri
                 }
             }
         )

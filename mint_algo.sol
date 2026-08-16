@@ -11,6 +11,7 @@ contract mint_algo is ERC721URIStorage, Ownable {
 
     struct Asset {
         string assetName;
+        string assetType;
         string contentHash;
         uint256 mintedAt;
     }
@@ -23,6 +24,7 @@ contract mint_algo is ERC721URIStorage, Ownable {
         uint256 indexed tokenId,
         address indexed owner,
         string assetName,
+        string assetType,
         string contentHash
 
     );
@@ -31,6 +33,7 @@ contract mint_algo is ERC721URIStorage, Ownable {
 
     function mintNFT(
         string memory assetName,
+        string memory assetType,
         string memory contentHash,
         string memory tokenURI_
     ) public {
@@ -43,13 +46,14 @@ contract mint_algo is ERC721URIStorage, Ownable {
 
         assets[tokenId] = Asset({
             assetName: assetName,
+            assetType: assetType,
             contentHash: contentHash,
             mintedAt: block.timestamp
         });
         usedHashes[contentHash] = true;
         usedNames[assetName] = true;
 
-        emit AssetMinted(tokenId, msg.sender, assetName, contentHash);
+        emit AssetMinted(tokenId, msg.sender, assetName,assetType, contentHash);
     }
 
     function verifyHash(
@@ -77,6 +81,7 @@ contract mint_algo is ERC721URIStorage, Ownable {
         returns(
             string memory,
             string memory,
+            string memory,
             address,
             uint256
         )
@@ -84,6 +89,7 @@ contract mint_algo is ERC721URIStorage, Ownable {
     {
         return (
             assets[tokenId].assetName,
+            assets[tokenId].assetType,
             assets[tokenId].contentHash,
             ownerOf(tokenId),
             assets[tokenId].mintedAt

@@ -613,3 +613,14 @@ body {
     text-decoration: underline;
     font-size: 0.85rem;
 }
+.btn-link {
+    display: inline-block;
+    padding: 3px 3px;
+    background-color: #8758f0;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: sans-serif;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
